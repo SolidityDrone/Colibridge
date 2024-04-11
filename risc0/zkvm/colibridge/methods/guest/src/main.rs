@@ -44,7 +44,7 @@ fn main() {
     let input: EthViewCallInput = env::read();
     let contract_address: Address = env::read();
     let account_address: Address = env::read();
-
+    
 
     let call: IERC20::balanceOfCall =
         IERC20::balanceOfCall { account: (account_address)};

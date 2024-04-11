@@ -1499,6 +1499,7 @@ dependencies = [
  "log",
  "risc0-ethereum-view-call",
  "risc0-zkvm",
+ "serde",
  "tracing-subscriber 0.3.18",
 ]
 
