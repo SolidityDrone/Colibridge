@@ -124,10 +124,9 @@ fn main() -> Result<()> {
         .unwrap()
         .bytes();
     
-    BonsaiProver::prove(ERC20_GUEST_ELF, &input.to_vec())?;
-
-
-  
+        BonsaiProver::prove(ERC20_GUEST_ELF, &input.to_vec())?;
+        
+        let (journal, post_state_digest, seal) = BonsaiProver::prove(ERC20_GUEST_ELF, &input)?;
     Ok(())
 }
 
