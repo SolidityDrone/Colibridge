@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+use std::time::Duration;
 use std::str::FromStr;
 use alloy_primitives::{address, Address};
 use alloy_sol_types::{sol, SolCall, SolValue};
@@ -20,7 +21,7 @@ use erc20_methods::ERC20_GUEST_ELF;
 use risc0_ethereum_view_call::{
     config::ARB_SEPOLIA_CHAIN_SPEC, ethereum::EthViewCallEnv, EvmHeader, ViewCall,
 };
-use risc0_zkvm::{compute_image_id, default_executor, is_dev_mode, ExecutorEnv, Receipt};
+use risc0_zkvm::{compute_image_id, default_executor, is_dev_mode, ExecutorEnv, Receipt, serde::to_vec};
 use tracing_subscriber::EnvFilter;
 use bonsai_sdk::alpha as bonsai_sdk;
 
@@ -53,12 +54,11 @@ struct Args {
 
 fn main() -> Result<()> {
 
-    let url = "http://api.bonsai.xyz".to_string();
-    let api_key = "oY9BA55NkX4DpLUhm8x7a7TfzHoVNCaoIYSSnCd0".to_string(); // FAKE ANY KEY WORKS lol
-    bonsai_sdk::Client::from_parts(url, api_key, risc0_zkvm::VERSION)
-    .expect("Failed to construct sdk client");
-    println!("Bonsai SDK client ");
-    
+ 
+    let client = bonsai_sdk::Client::from_env(risc0_zkvm::VERSION)
+        .expect("Failed to construct sdk client");
+
+
     // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt().with_env_filter(EnvFilter::from_default_env()).init();
     // parse the command line arguments
@@ -103,5 +103,51 @@ fn main() -> Result<()> {
     let bytes = session_info.journal.as_ref();
     assert_eq!(&bytes[..64], &commitment.abi_encode());
     
+
+    let image_id = compute_image_id(ERC20_GUEST_ELF).expect("Failed to compute image ID");
+    let image_id_hex = hex::encode(image_id);
+    client
+        .upload_img(&image_id_hex, ERC20_GUEST_ELF.to_vec())
+        .expect("Failed to upload image");
+    log::info!("Image ID: 0x{}", image_id_hex);
+    
+
+    let input_id = client.upload_input(contract_address.to_vec())?;
+
+    let assumptions: Vec<String> = vec![];
+    let session = client.create_session(image_id.to_string(), input_id, assumptions)?;
+    
+    let _receipt = loop {
+        let res = session.status(&client)?;
+        if res.status == "RUNNING" {
+            log::info!(
+                "Current status: {} - state: {} - continue polling...",
+                res.status,
+                res.state.unwrap_or_default()
+            );
+            std::thread::sleep(Duration::from_secs(30));
+            continue;
+        }
+        if res.status == "SUCCEEDED" {
+            // Download the receipt, containing the output.
+            let receipt_url = res
+                .receipt_url
+                .context("API error, missing receipt on completed session")?;
+
+            let receipt_buf = client.download(&receipt_url)?;
+            let receipt: Receipt = bincode::deserialize(&receipt_buf)?;
+
+            break receipt;
+        }
+
+        panic!(
+            "Workflow exited: {} - | err: {}",
+            res.status,
+            res.error_msg.unwrap_or_default()
+        );
+    };
+
     Ok(())
 }
+
+
