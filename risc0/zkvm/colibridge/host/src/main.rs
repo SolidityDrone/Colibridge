@@ -20,8 +20,9 @@ use erc20_methods::ERC20_GUEST_ELF;
 use risc0_ethereum_view_call::{
     config::ARB_SEPOLIA_CHAIN_SPEC, ethereum::EthViewCallEnv, EvmHeader, ViewCall,
 };
-use risc0_zkvm::{default_executor, ExecutorEnv};
+use risc0_zkvm::{compute_image_id, default_executor, is_dev_mode, ExecutorEnv, Receipt};
 use tracing_subscriber::EnvFilter;
+use bonsai_sdk::alpha as bonsai_sdk;
 
 
 /// Caller address
@@ -51,6 +52,13 @@ struct Args {
 
 
 fn main() -> Result<()> {
+
+    let url = "http://api.bonsai.xyz".to_string();
+    let api_key = "oY9BA55NkX4DpLUhm8x7a7TfzHoVNCaoIYSSnCd0".to_string(); // FAKE ANY KEY WORKS lol
+    bonsai_sdk::Client::from_parts(url, api_key, risc0_zkvm::VERSION)
+    .expect("Failed to construct sdk client");
+    println!("Bonsai SDK client ");
+    
     // Initialize tracing. In order to view logs, run `RUST_LOG=info cargo run`
     tracing_subscriber::fmt().with_env_filter(EnvFilter::from_default_env()).init();
     // parse the command line arguments
@@ -94,6 +102,6 @@ fn main() -> Result<()> {
     // extract the proof from the session info and validate it
     let bytes = session_info.journal.as_ref();
     assert_eq!(&bytes[..64], &commitment.abi_encode());
-
+    
     Ok(())
 }

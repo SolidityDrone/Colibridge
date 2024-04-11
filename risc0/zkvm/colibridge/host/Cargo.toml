@@ -12,3 +12,4 @@ erc20-methods = { workspace = true }
 risc0-ethereum-view-call = { path = "../../../view-call", features = ["host"] }
 risc0-zkvm = { workspace = true, features = ["client"] }
 tracing-subscriber = { workspace = true }
+bonsai-sdk = { version = "0.7", default-features = false }

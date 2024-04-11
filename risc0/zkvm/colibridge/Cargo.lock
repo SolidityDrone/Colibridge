@@ -1490,6 +1490,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-sol-types",
  "anyhow",
+ "bonsai-sdk",
  "clap",
  "erc20-methods",
  "risc0-ethereum-view-call",
