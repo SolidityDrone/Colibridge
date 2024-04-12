@@ -14,7 +14,7 @@
 
 #![allow(unused_doc_comments)]
 #![no_main]
-
+use std::convert::TryInto;
 use alloy_primitives::{address, Address};
 use alloy_sol_types::{sol, SolValue};
 use risc0_ethereum_view_call::{
@@ -64,7 +64,17 @@ fn main() {
     let data_layer_returns = ViewCall::new(data_layer_call, contract_address).with_caller(CALLER).execute(data_layer_view_call_env);
     println!("Balance on from chain: {}", from_chain_returns._0);
     println!("Address to check: {}", account_address);
-    assert!(amount <= from_chain_returns._0, "from_chain_returns is less than amount");
+
+
+    let from_chain_returns_u64: u64 = match from_chain_returns._0.try_into() {
+        Ok(value) => value,
+        Err(_) => {
+            // Handle the conversion error here
+            // For example, you could panic, return a default value, or handle it gracefully
+            panic!("Conversion from alloy_primitives::Uint<256, 4> to u64 failed");
+        }
+    };
+    assert!(amount <= from_chain_returns_u64, "from_chain_returns is less than amount");
     assert!(from_chain_returns._0 <= data_layer_returns._0, "from_chain_returns is less than data_layer_returns");
    
     // Commit the block hash and number used when deriving `view_call_env` to the journal.
