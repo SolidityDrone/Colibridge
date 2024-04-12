@@ -114,21 +114,25 @@ fn main() -> Result<()> {
     println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, data_layer_returns._0);
 
     
-    // println!("Running the guest with the constructed input:");
-    // let session_info = {
-    //     let env = ExecutorEnv::builder()
-    //         .write(&input)
-    //         .unwrap()
-    //         .write(&contract_address)
-    //         .unwrap()
-    //         .write(&account_address)
-    //         .unwrap()
-    //         .build()
-    //         .context("Failed to build exec env")?;
-    //     let exec = default_executor();
-    //     exec.execute(env, ERC20_GUEST_ELF).context("failed to run executor")?
-    // };
-
+    println!("Running the guest with the constructed input:");
+    let session_info = {
+        let env = ExecutorEnv::builder()
+            .write(&from_chain_view_call_input)
+            .unwrap()
+            .write(&data_layer_view_call_input)
+            .unwrap()
+            .write(&contract_address)
+            .unwrap()
+            .write(&account_address)
+            .unwrap()
+            .write(&amount)
+            .unwrap()
+            .build()
+            .context("Failed to build exec env")?;
+        let exec = default_executor();
+        exec.execute(env, ERC20_GUEST_ELF).context("failed to run executor")?
+    };
+    
     let input = InputBuilder::new()
         .write(from_chain_view_call_input)
         .unwrap()
