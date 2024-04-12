@@ -49,6 +49,9 @@ struct Args {
     /// Account address
     #[arg(short, long, env = "ACCOUNT_ADDRESS")]
     account_address: String,
+
+    #[arg(short, long, env = "AMOUNT_WEI")]
+    amount: u64,
 }
 
 pub struct InputBuilder {
@@ -83,23 +86,34 @@ fn main() -> Result<()> {
     // Create a view call environment from an RPC endpoint and a block number. If no block number is
     // provided, the latest block is used. The `with_chain_spec` method is used to specify the
     // chain configuration.
-    let env =
+    let from_chain_env =
         EthViewCallEnv::from_rpc(&args.rpc_url, None)?.with_chain_spec(&ARB_SEPOLIA_CHAIN_SPEC);
-    let number = env.header().number();
-    let commitment = env.block_commitment();
+    let data_layer_env = 
+        EthViewCallEnv::from_rpc(&args.rpc_url, None)?.with_chain_spec(&ARB_SEPOLIA_CHAIN_SPEC);
+    
+    let number = from_chain_env.header().number();
+    let commitment = from_chain_env.block_commitment();
 
     let contract: Address = Address::from_str(&args.contract_address)?;
-    let call: IERC20::balanceOfCall =
-        IERC20::balanceOfCall { account: Address::from_str(&args.account_address)?};
-    
     let contract_address: Address = Address::from_str(&args.contract_address)?;
     let account_address: Address = Address::from_str(&args.account_address)?;
 
+    let from_chain_call: IERC20::balanceOfCall =
+        IERC20::balanceOfCall { account: account_address.clone() };
+    let data_layer_call: IERC20::balanceOfCall =
+        IERC20::balanceOfCall { account: account_address.clone() };
+
+
+    let amount: u64 = args.amount;
     // Preflight the view call to construct the input that is required to execute the function in
     // the guest. It also returns the result of the call.
-    let (view_call_input, returns) = ViewCall::new(call, contract).with_caller(CALLER).preflight(env)?;
-    println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, returns._0);
+    let (from_chain_view_call_input, from_chain_returns) = ViewCall::new(from_chain_call, contract).with_caller(CALLER).preflight(from_chain_env)?;
+    println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, from_chain_returns._0);
 
+    let (data_layer_view_call_input, data_layer_returns) = ViewCall::new(data_layer_call, contract).with_caller(CALLER).preflight(data_layer_env)?;
+    println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, data_layer_returns._0);
+
+    
     // println!("Running the guest with the constructed input:");
     // let session_info = {
     //     let env = ExecutorEnv::builder()
@@ -116,17 +130,22 @@ fn main() -> Result<()> {
     // };
 
     let input = InputBuilder::new()
-        .write(view_call_input)
+        .write(from_chain_view_call_input)
+        .unwrap()
+        .write(data_layer_view_call_input)
         .unwrap()
         .write(contract_address)
         .unwrap()
         .write(account_address)
+        .unwrap()
+        .write(amount)
         .unwrap()
         .bytes();
     
         BonsaiProver::prove(ERC20_GUEST_ELF, &input.to_vec())?;
         
         let (journal, post_state_digest, seal) = BonsaiProver::prove(ERC20_GUEST_ELF, &input)?;
+        
     Ok(())
 }
 
