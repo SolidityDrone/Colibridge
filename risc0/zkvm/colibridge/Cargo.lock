@@ -757,6 +757,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98cc8fbded0c607b7ba9dd60cd98df59af97e84d24e49c8557331cfc26d301ce"
 
 [[package]]
+name = "colibri-methods"
+version = "0.1.0"
+dependencies = [
+ "risc0-build",
+]
+
+[[package]]
 name = "colorchoice"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1022,13 +1029,6 @@ name = "equivalent"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5443807d6dff69373d433ab9ef5378ad8df50ca6298caf15de6e52e24aaf54d5"
-
-[[package]]
-name = "erc20-methods"
-version = "0.1.0"
-dependencies = [
- "risc0-build",
-]
 
 [[package]]
 name = "errno"
@@ -1494,7 +1494,7 @@ dependencies = [
  "bonsai-sdk",
  "bytemuck",
  "clap",
- "erc20-methods",
+ "colibri-methods",
  "hex",
  "log",
  "risc0-ethereum-view-call",

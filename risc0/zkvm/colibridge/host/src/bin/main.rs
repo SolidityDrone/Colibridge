@@ -13,13 +13,13 @@
 // limitations under the License.
 use std::time::Duration;
 use std::str::FromStr;
-use alloy_primitives::{address, Address};
+use alloy_primitives::{address, Address, Uint};
 use alloy_sol_types::{sol, SolCall, SolValue};
 use anyhow::{Context, Result};
 use clap::Parser;
-use erc20_methods::ERC20_GUEST_ELF;
+use colibri_methods::DL_CHECKER_GUEST_ELF;
 use risc0_ethereum_view_call::{
-    config::ARB_SEPOLIA_CHAIN_SPEC, ethereum::EthViewCallEnv, EvmHeader, ViewCall,
+    config::*, ethereum::EthViewCallEnv, EvmHeader, ViewCall,
 };
 use risc0_zkvm::{compute_image_id, default_executor, is_dev_mode, ExecutorEnv, Receipt, serde::to_vec};
 use tracing_subscriber::EnvFilter;
@@ -30,9 +30,8 @@ use host::{BonsaiProver};
 const CALLER: Address = address!("f08A50178dfcDe18524640EA6618a1f965821715");
 
 sol! {
-    /// ERC-20 balance function signature.
-    interface IERC20 {
-        function balanceOf(address account) external view returns (uint);
+    interface COLIBRILEDGER{
+        function getBalance(uint chainid, address account) external view returns (uint);
     }
 }
 
@@ -52,6 +51,9 @@ struct Args {
 
     #[arg(short, long, env = "AMOUNT_WEI")]
     amount: u64,
+
+    #[arg(short, long, env = "FROM_CHAINID")]
+    from_chainid: u64,
 }
 
 pub struct InputBuilder {
@@ -80,45 +82,30 @@ fn main() -> Result<()> {
     // parse the command line arguments
     let args = Args::parse();
     
-    
-
-
     // Create a view call environment from an RPC endpoint and a block number. If no block number is
     // provided, the latest block is used. The `with_chain_spec` method is used to specify the
     // chain configuration.
-    let from_chain_env =
-        EthViewCallEnv::from_rpc(&args.rpc_url, None)?.with_chain_spec(&ARB_SEPOLIA_CHAIN_SPEC);
     let data_layer_env = 
         EthViewCallEnv::from_rpc(&args.rpc_url, None)?.with_chain_spec(&ARB_SEPOLIA_CHAIN_SPEC);
-    
-    let number = from_chain_env.header().number();
-    let commitment = from_chain_env.block_commitment();
+
 
     let contract: Address = Address::from_str(&args.contract_address)?;
     let contract_address: Address = Address::from_str(&args.contract_address)?;
     let account_address: Address = Address::from_str(&args.account_address)?;
-
-    let from_chain_call: IERC20::balanceOfCall =
-        IERC20::balanceOfCall { account: account_address.clone() };
-    let data_layer_call: IERC20::balanceOfCall =
-        IERC20::balanceOfCall { account: account_address.clone() };
+    let from_chainid: u64 = args.from_chainid;
+    let data_layer_call: COLIBRILEDGER::getBalanceCall = 
+    COLIBRILEDGER::getBalanceCall {chainid: Uint::from(from_chainid), account: account_address.clone() };
 
 
     let amount: u64 = args.amount;
     // Preflight the view call to construct the input that is required to execute the function in
     // the guest. It also returns the result of the call.
-    let (from_chain_view_call_input, from_chain_returns) = ViewCall::new(from_chain_call, contract).with_caller(CALLER).preflight(from_chain_env)?;
-    println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, from_chain_returns._0);
-
     let (data_layer_view_call_input, data_layer_returns) = ViewCall::new(data_layer_call, contract).with_caller(CALLER).preflight(data_layer_env)?;
-    println!("For block {} `{}` returns: {}", number, IERC20::balanceOfCall::SIGNATURE, data_layer_returns._0);
 
     
     println!("Running the guest with the constructed input:");
     let session_info = {
         let env = ExecutorEnv::builder()
-            .write(&from_chain_view_call_input)
-            .unwrap()
             .write(&data_layer_view_call_input)
             .unwrap()
             .write(&contract_address)
@@ -127,28 +114,29 @@ fn main() -> Result<()> {
             .unwrap()
             .write(&amount)
             .unwrap()
+            .write(&from_chainid)
+            .unwrap()
             .build()
             .context("Failed to build exec env")?;
         let exec = default_executor();
-        exec.execute(env, ERC20_GUEST_ELF).context("failed to run executor")?
+        exec.execute(env, DL_CHECKER_GUEST_ELF).context("failed to run executor")?
     };
     
     let input = InputBuilder::new()
-        .write(from_chain_view_call_input)
+        .write(&data_layer_view_call_input)
         .unwrap()
-        .write(data_layer_view_call_input)
+        .write(&contract_address)
         .unwrap()
-        .write(contract_address)
+        .write(&account_address)
         .unwrap()
-        .write(account_address)
+        .write(&amount)
         .unwrap()
-        .write(amount)
+        .write(&from_chainid)
         .unwrap()
         .bytes();
-    
-        BonsaiProver::prove(ERC20_GUEST_ELF, &input.to_vec())?;
+
         
-        let (journal, post_state_digest, seal) = BonsaiProver::prove(ERC20_GUEST_ELF, &input)?;
+    let (journal, post_state_digest, seal) = BonsaiProver::prove(DL_CHECKER_GUEST_ELF, &input)?;
         
     Ok(())
 }
