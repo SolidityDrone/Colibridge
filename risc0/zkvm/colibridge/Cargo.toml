@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["host", "methods"]
+members = ["app", "methods"]
 
 [workspace.dependencies]
 alloy-primitives = { version = "0.6.4", features = ["serde", "rlp", "std"] }

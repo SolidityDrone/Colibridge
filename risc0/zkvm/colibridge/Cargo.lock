@@ -172,6 +172,26 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0952808a6c2afd1aa8947271f3a60f1a6763c7b912d210184c5149b5cf147247"
 
 [[package]]
+name = "app"
+version = "0.1.0"
+dependencies = [
+ "alloy-primitives",
+ "alloy-sol-types",
+ "anyhow",
+ "bincode",
+ "bonsai-sdk",
+ "bytemuck",
+ "clap",
+ "colibri-methods",
+ "hex",
+ "log",
+ "risc0-ethereum-view-call",
+ "risc0-zkvm",
+ "serde",
+ "tracing-subscriber 0.3.18",
+]
+
+[[package]]
 name = "ark-bn254"
 version = "0.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1481,26 +1501,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3d1354bf6b7235cb4a0576c2619fd4ed18183f689b12b006a0ee7329eeff9a5"
 dependencies = [
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "host"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "alloy-sol-types",
- "anyhow",
- "bincode",
- "bonsai-sdk",
- "bytemuck",
- "clap",
- "colibri-methods",
- "hex",
- "log",
- "risc0-ethereum-view-call",
- "risc0-zkvm",
- "serde",
- "tracing-subscriber 0.3.18",
 ]
 
 [[package]]
