@@ -5,7 +5,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { cookieToInitialState } from 'wagmi'
 import { config, projectId } from '@/config'
-import Header from "@/app/components/common/Header-old";
+import Header from "@/app/components/common/Header";
 import Footer from "@/app/components/common/Footer";
 import Web3ModalProvider from "@/context";
 import { createWeb3Modal } from "@web3modal/wagmi/react";
