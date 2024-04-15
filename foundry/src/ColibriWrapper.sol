@@ -24,25 +24,21 @@ contract ColibriWrapper is ERC20{
           revert();
      }
 
-     function _wrapNativeEther(uint amount) internal{
-          _mint(msg.sender, amount);
+     function wrapNativeEther() public payable{
+          _mint(msg.sender, msg.value);
      }
 
-     function _unwrapNativeEther(uint amount) internal{
+     function unwrapNativeEther(uint amount) public{
           _burn(msg.sender, amount);
           (bool success, ) = msg.sender.call{value: amount}("");
           require(success, "Failed to send ether");
      }
 
      function mintWithRiscZeroProof(bytes calldata seal, bytes32 imageId, bytes32 postStateDigest, bytes memory journal) public {
-          require(verifier.verify(seal, imageId, postStateDigest, sha256(journal)), "Invalid proof");
-          //Output(journalDigest, bytes32(0)).digest();
-          
-          _wrapNativeEther(1);
+          //require(verifier.verify(seal, imageId, postStateDigest, sha256(journal)), "Invalid proof");
+          //(uint journalAmount, , address account) = abi.decode(journal, (uint, uint, address));
+          //require(msg.sender == account, "Different caller");
+          //_mint(msg.sender, journalAmount);
      }
-
-
-   receive() external payable {}
-
-
+     receive() external payable {}
 }

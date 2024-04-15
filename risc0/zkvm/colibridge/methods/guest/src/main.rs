@@ -69,7 +69,6 @@ fn main() {
     println!("Balance on dl: {}", data_layer_returns._0);
     println!("Address to check: {}", account_address);
 
-
     let data_layer_returns_u64: u64 = match data_layer_returns._0.try_into() {
         Ok(value) => value,
         Err(_) => {
@@ -80,15 +79,15 @@ fn main() {
     };
 
     assert!(amount.clone() <= data_layer_returns_u64.clone(), "from_chain_returns is less than amount");
-   
     
     let output = Output {
-        amount: Uint::from(data_layer_returns_u64.clone()),
+        amount: Uint::from(amount.clone()),
         chain_id:  Uint::from(from_chainid.clone()) ,
         account: account_address.clone(),
     };
+
     println!("Output: {:?}", output.abi_encode());   
-    //env::commit_slice(output.abi_encode().as_slice());
+    env::commit_slice(output.abi_encode().as_slice());
     
 }
 

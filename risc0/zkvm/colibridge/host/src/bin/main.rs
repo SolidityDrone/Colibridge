@@ -100,32 +100,30 @@ fn main() -> Result<()> {
 
 
     let amount: u64 = args.amount;
+
+    
     // Preflight the view call to construct the input that is required to execute the function in
     // the guest. It also returns the result of the call.
     let (data_layer_view_call_input, data_layer_returns) = ViewCall::new(data_layer_call, contract).with_caller(CALLER).preflight(data_layer_env)?;
 
-   
-   
-
-
-    println!("Running the guest with the constructed input:");
-    let session_info = {
-        let env = ExecutorEnv::builder()
-            .write(&data_layer_view_call_input)
-            .unwrap()
-            .write(&contract_address)
-            .unwrap()
-            .write(&account_address)
-            .unwrap()
-            .write(&amount)
-            .unwrap()
-            .write(&from_chainid)
-            .unwrap()
-            .build()
-            .context("Failed to build exec env")?;
-        let exec = default_executor();
-        exec.execute(env, DL_CHECKER_GUEST_ELF).context("failed to run executor")?
-    };
+    // println!("Running the guest with the constructed input:");
+    // let session_info = {
+    //     let env = ExecutorEnv::builder()
+    //         .write(&data_layer_view_call_input)
+    //         .unwrap()
+    //         .write(&contract_address)
+    //         .unwrap()
+    //         .write(&account_address)
+    //         .unwrap()
+    //         .write(&amount)
+    //         .unwrap()
+    //         .write(&from_chainid)
+    //         .unwrap()
+    //         .build()
+    //         .context("Failed to build exec env")?;
+    //     let exec = default_executor();
+    //     exec.execute(env, DL_CHECKER_GUEST_ELF).context("failed to run executor")?
+    // };
     
     let input = InputBuilder::new()
         .write(&data_layer_view_call_input)
@@ -153,11 +151,8 @@ fn main() -> Result<()> {
     println!("seal_hex: {:?}", seal_hex);
     println!("Image ID: {:?}", image_id_hex);
     println!("Post State Digest: {:?}", post_state_digest);
-    println!("Journal: {:?}", journal);
-    
-    
- 
-
+    println!("Journal: {:?}", journal_hex);
+        
     Ok(())
 }
 

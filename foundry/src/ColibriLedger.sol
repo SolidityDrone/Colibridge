@@ -27,6 +27,9 @@ contract ColibriLedger {
     );
     
     mapping(address => mapping(uint => uint)) internal balances;
+    mapping(address => uint) internal nextExitTimestamp;
+
+
     address owner;  
     
     constructor() {
