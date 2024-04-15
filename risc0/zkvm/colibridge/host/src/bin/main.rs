@@ -17,7 +17,7 @@ use alloy_primitives::{address, Address, Uint};
 use alloy_sol_types::{sol, SolCall, SolValue};
 use anyhow::{Context, Result};
 use clap::Parser;
-use colibri_methods::DL_CHECKER_GUEST_ELF;
+use colibri_methods::{DL_CHECKER_GUEST_ELF};
 use risc0_ethereum_view_call::{
     config::*, ethereum::EthViewCallEnv, EvmHeader, ViewCall,
 };
@@ -34,6 +34,8 @@ sol! {
         function getBalance(uint chainid, address account) external view returns (uint);
     }
 }
+
+
 
 /// Simple program to show the use of Ethereum contract data inside the guest.
 #[derive(Parser, Debug)]
@@ -102,7 +104,10 @@ fn main() -> Result<()> {
     // the guest. It also returns the result of the call.
     let (data_layer_view_call_input, data_layer_returns) = ViewCall::new(data_layer_call, contract).with_caller(CALLER).preflight(data_layer_env)?;
 
-    
+   
+   
+
+
     println!("Running the guest with the constructed input:");
     let session_info = {
         let env = ExecutorEnv::builder()
@@ -137,7 +142,22 @@ fn main() -> Result<()> {
 
         
     let (journal, post_state_digest, seal) = BonsaiProver::prove(DL_CHECKER_GUEST_ELF, &input)?;
-        
+    
+    
+    let image_id = compute_image_id(DL_CHECKER_GUEST_ELF).expect("Failed to compute image ID");
+    let image_id_hex = hex::encode(image_id);
+    
+    let seal_hex = hex::encode(seal);
+    let journal_hex = hex::encode(journal.clone());
+
+    println!("seal_hex: {:?}", seal_hex);
+    println!("Image ID: {:?}", image_id_hex);
+    println!("Post State Digest: {:?}", post_state_digest);
+    println!("Journal: {:?}", journal);
+    
+    
+ 
+
     Ok(())
 }
 

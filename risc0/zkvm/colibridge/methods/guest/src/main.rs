@@ -80,14 +80,15 @@ fn main() {
     };
 
     assert!(amount.clone() <= data_layer_returns_u64.clone(), "from_chain_returns is less than amount");
+   
     
     let output = Output {
         amount: Uint::from(data_layer_returns_u64.clone()),
         chain_id:  Uint::from(from_chainid.clone()) ,
         account: account_address.clone(),
     };
-
-    env::commit_slice(output.abi_encode().as_slice());
-
+    println!("Output: {:?}", output.abi_encode());   
+    //env::commit_slice(output.abi_encode().as_slice());
+    
 }
 

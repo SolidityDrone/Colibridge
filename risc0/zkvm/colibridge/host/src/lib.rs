@@ -167,7 +167,7 @@ impl BonsaiProver {
             .context("Read post_state_digest")?;
         let journal = snark_receipt.journal;
 
-        Ok((seal, post_state_digest, journal))
+        Ok((journal, post_state_digest, seal))
             
         }
 }
