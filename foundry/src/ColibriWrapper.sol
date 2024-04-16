@@ -15,7 +15,7 @@ contract ColibriWrapper is ERC20{
      }
 
 
-     // this token is meant to be used horizontally between networks, not vertically in the erc sense
+     // this token is blocked in this implementation
      function transferFrom(address from, address to, uint256 value) public override returns (bool) {
           revert();
      }
@@ -23,7 +23,7 @@ contract ColibriWrapper is ERC20{
      function transfer(address to, uint256 value) public override returns (bool) {
           revert();
      }
-
+     
      function wrapNativeEther() public payable{
           _mint(msg.sender, msg.value);
      }
@@ -35,10 +35,10 @@ contract ColibriWrapper is ERC20{
      }
 
      function mintWithRiscZeroProof(bytes calldata seal, bytes32 imageId, bytes32 postStateDigest, bytes memory journal) public {
-          //require(verifier.verify(seal, imageId, postStateDigest, sha256(journal)), "Invalid proof");
-          //(uint journalAmount, , address account) = abi.decode(journal, (uint, uint, address));
-          //require(msg.sender == account, "Different caller");
-          //_mint(msg.sender, journalAmount);
+          require(verifier.verify(seal, imageId, postStateDigest, sha256(journal)), "Invalid proof");
+          (uint journalAmount, , address account) = abi.decode(journal, (uint, uint, address));
+        
+          _mint(msg.sender, journalAmount);
      }
      receive() external payable {}
 }

@@ -84,7 +84,7 @@ impl BonsaiProver {
     
 
     
-    pub fn prove(elf: &[u8], input: &[u8], key: String) -> Result<(Vec<u8>, FixedBytes<32>, Vec<u8>)> {
+    pub fn prove(elf: &[u8], input: &[u8], key: String) -> Result<(Vec<u8>, FixedBytes<32>, Vec<u8>, String)> {
         
       
         let url = "http://api.bonsai.xyz".to_string();
@@ -168,10 +168,11 @@ impl BonsaiProver {
             .post_state_digest
             .as_slice()
             .try_into()
-            .context("Read post_state_digest")?;
+            .context("Read p
+            ost_state_digest")?;
         let journal = snark_receipt.journal;
 
-        Ok((journal, post_state_digest, seal))
+        Ok((journal, post_state_digest, seal, image_id_hex))
             
         }
 }

@@ -36,7 +36,6 @@ sol! {
 }
 
 
-
 /// Simple program to show the use of Ethereum contract data inside the guest.
 #[derive(Parser, Debug)]
 #[command(about, long_about = None)]
@@ -117,20 +116,20 @@ fn main() -> Result<()> {
         .unwrap()
         .bytes();
 
-    let (journal, post_state_digest, seal) = BonsaiProver::prove(DL_CHECKER_GUEST_ELF, &input, bonsai_key)?;
+    let (journal, post_state_digest, seal, image_id_hex) = BonsaiProver::prove(DL_CHECKER_GUEST_ELF, &input, bonsai_key)?;
     
     
-    let image_id = compute_image_id(DL_CHECKER_GUEST_ELF).expect("Failed to compute image ID");
-    let image_id_hex = hex::encode(image_id);
+    //let image_id = compute_image_id(DL_CHECKER_GUEST_ELF).expect("Failed to compute image ID");
+
     
     let seal_hex = hex::encode(seal);
-    let journal_hex = hex::encode(journal.clone());
+    let journal_hex = hex::encode(journal);
 
     println!("seal_hex: {:?}", seal_hex);
-    println!("Image ID: {:?}", image_id_hex);
+    println!("Image ID: 0x{}", image_id_hex);
     println!("Post State Digest: {:?}", post_state_digest);
     println!("Journal: {:?}", journal_hex);
-        
+
     Ok(())
 }
 
