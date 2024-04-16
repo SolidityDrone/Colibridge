@@ -1,22 +1,50 @@
 'use client'
 import Image from "next/image";
 import Link from "next/link";
-import {  useWriteContract } from 'wagmi'
-import {abi} from "../../../contracts/ERC20Wrapper/erc20wrapperAbi"
-import {CONTRACT_ADDRESS, selectors} from "../../../contracts/ERC20Wrapper/colibriERC20Wrapper"
+import { useWriteContract, useWaitForTransactionReceipt, useAccount } from 'wagmi'
+import { abi as wrapperAbi } from "../../../contracts/ERC20Wrapper/erc20wrapperAbi"
+
+
+import { CONTRACT_ADDRESS as WRAPPER_ADDRESS, selectors as wrapperSelectors } from "../../../contracts/ERC20Wrapper/colibriERC20Wrapper"
 import { parseEther } from "ethers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { callSetUpWrap } from "../api/routes";
 
 export default function CreateWrapper() {
-  const { writeContractAsync } = useWriteContract()
+  const [successDone, setSuccessDone] = useState<boolean>()
   const [amount, setAmount] = useState('0')
+  const { writeContract, data } = useWriteContract({
+  })
+  const { address } = useAccount()
 
+  const resp = useWaitForTransactionReceipt({
+    hash: data,
+  })
+
+
+  useEffect(() => {
+    if (resp.isSuccess && !successDone) {
+      setSuccessDone(true)
+      // send tx under hood to ledger contract on IPC
+      alert('succes')
+
+      // return writeContract({
+      //   abi: ledgerAbi,
+      //   address: `${LEDGER_ADDRESS}` as `0x${string}`,
+      //   functionName: ledgerSelector.setUpWrap,
+      //   args: [],
+      //   value: parseEther(amount) as any
+      // })
+
+      callSetUpWrap(amount, address as string)
+    }
+  }, [resp])
 
   const wrapETH = async () => {
-    return writeContractAsync({
-      abi: abi,
-      address:`${CONTRACT_ADDRESS}` as `0x${string}`,
-      functionName: selectors.wrapNativeEther,
+    return writeContract({
+      abi: wrapperAbi,
+      address: `${WRAPPER_ADDRESS}` as `0x${string}`,
+      functionName: wrapperSelectors.wrapNativeEther,
       args: [],
       value: parseEther(amount) as any
     })
@@ -30,8 +58,8 @@ export default function CreateWrapper() {
 
       <div className="max-w-sm mx-auto">
         <label htmlFor="number-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Chose ETH amount you want to wrap</label>
-        <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required onChange={(el)=> setAmount(el.target.value)}/>
-        <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={()=> wrapETH()}>Wrap some ETH</button>
+        <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required onChange={(el) => setAmount(el.target.value)} />
+        <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => wrapETH()}>Wrap some ETH</button>
       </div>
 
 
