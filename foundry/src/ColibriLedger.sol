@@ -28,8 +28,8 @@ contract ColibriLedger {
     
     mapping(address => mapping(uint => uint)) internal balances;
     mapping(address => uint) internal nextExitTimestamp;
-
-
+    mapping(address=>uint) internal nonces;
+    
     address owner;  
     
     constructor() {
@@ -50,8 +50,9 @@ contract ColibriLedger {
         * @param toChainId The ID of the chain to wrap the asset to.
         * @param account The address of the account to wrap the asset for.
         */
-    function setUpWrap(uint amount, uint toChainId, address account) public onlyOwner {
+    function setUpWrap(uint amount, uint toChainId, address account) public /*onlyOwner*/ {
         _updateBalance(amount, toChainId, account);
+        nonces[account] += 1;
         emit WrappedAsset(account, toChainId, amount);
     }
     
@@ -61,8 +62,9 @@ contract ColibriLedger {
         * @param toChainId The ID of the chain to unwrap the asset to.
         * @param account The address of the account to unwrap the asset for.
         */
-    function setUpUnwrap(uint amount, uint toChainId, address account) public onlyOwner {
+    function setUpUnwrap(uint amount, uint toChainId, address account) public /*onlyOwner*/ {
         _updateBalanceSubtract(amount, toChainId, account);
+        nonces[account] += 1;
         emit Unwrapped(account, toChainId, amount);
     }
         
@@ -73,8 +75,9 @@ contract ColibriLedger {
         * @param account The address of the account to transfer the asset for.
         * @param fromChainId The ID of the chain to transfer the asset from.
         */
-    function setupTransfer(uint amount, uint toChainId, address account, uint fromChainId) public onlyOwner {
+    function setupTransfer(uint amount, uint toChainId, address account, uint fromChainId) public /*onlyOwner*/ {
         _updateBalance(amount, toChainId, account, fromChainId);
+        nonces[account] += 1;
         emit UpdatedBalance(account, toChainId, fromChainId, amount);
     }
     
@@ -110,6 +113,16 @@ contract ColibriLedger {
         balances[account][fromChainId] -= amount;
     }
     
+    /**
+        * @dev Gets the balance of an account on a specific chain.
+        * @param chainid The ID of the chain to get the balance for.
+        * @param account The address of the account to get the balance for.
+        * @return The balance of the account on the specified chain.
+        */
+    function getBalanceAndNonce(uint chainid, address account) public view returns (uint, uint) {
+        return (balances[account][chainid], nonces[account]);
+    }
+
     /**
         * @dev Gets the balance of an account on a specific chain.
         * @param chainid The ID of the chain to get the balance for.

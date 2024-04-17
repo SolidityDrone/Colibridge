@@ -31,7 +31,7 @@ const CALLER: Address = address!("f08A50178dfcDe18524640EA6618a1f965821715");
 
 sol! {
     interface COLIBRILEDGER{
-        function getBalance(uint chainid, address account) external view returns (uint);
+        function getBalanceAndNonce(uint chainid, address account) external view returns (uint, uint);
     }
 }
 
@@ -94,8 +94,8 @@ fn main() -> Result<()> {
     let contract_address: Address = Address::from_str(&args.contract_address)?;
     let account_address: Address = Address::from_str(&args.account_address)?;
     let from_chainid: u64 = args.from_chainid;
-    let data_layer_call: COLIBRILEDGER::getBalanceCall = 
-    COLIBRILEDGER::getBalanceCall {chainid: Uint::from(from_chainid), account: account_address.clone() };
+    let data_layer_call:  COLIBRILEDGER::getBalanceAndNonceCall =
+    COLIBRILEDGER::getBalanceAndNonceCall {chainid: Uint::from(from_chainid), account: account_address.clone() };
     let amount: u64 = args.amount;
     let bonsai_key: String = args.bonsai_key;
 
