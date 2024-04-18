@@ -72,7 +72,7 @@ contract ColibriWrapper is ERC20{
      function transferFrom(address from, address to, uint256 value) public override returns (bool) {
           revert();
      }
-
+     
      /**
       * @dev Overrides the transfer function to prevent transfers.
       */

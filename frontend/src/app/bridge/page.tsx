@@ -44,7 +44,7 @@ export default function Bridge() {
         functionName: selectors.mintWithRiscZeroProof,
         args: [arg1, arg2, arg3, arg4]
       });
-
+      
 
     } catch (error) {
       setCurrentStep(0);

@@ -1,20 +1,33 @@
 'use client'
 import Image from "next/image";
 import Link from "next/link";
-import { useWriteContract, useChainId, useAccount, useWaitForTransactionReceipt, BaseError} from 'wagmi'
+import { useWriteContract, useReadContract, useChainId, useAccount, useWaitForTransactionReceipt, BaseError} from 'wagmi'
 import { abi as wrapperAbi } from "../../../contracts/ERC20Wrapper/erc20wrapperAbi"
-
+import { abi as ledgerAbi } from "../../../contracts/colibriLedger/colibriLedgerAbi"
 import { CONTRACT_ADDRESS as WRAPPER_ADDRESS, selectors as wrapperSelectors } from "../../../contracts/ERC20Wrapper/colibriERC20Wrapper"
 import { parseEther } from "ethers";
 import { use, useEffect, useState } from "react";
 import { callSetUpWrap } from "../api/routes";
 import DotsAnimation from "../components/common/DotsAnimation";
+import { ColibriLedger, CONTRACT_ADDRESS as LEDGER_ADDRESS, selectors as ledgerSelector } from "../../../contracts/colibriLedger/ColibriLedger"
+
+
 export default function CreateWrapper() {
   const [successDone, setSuccessDone] = useState<boolean>()
   const [amount, setAmount] = useState('0') 
   const [currentStep, setCurrentStep] = useState(0)
   const { address } = useAccount()
   const chainId = useChainId()
+  
+  
+  
+  const getBalance = useReadContract({
+    abi: ledgerAbi,
+    address: LEDGER_ADDRESS as `0x${string}`,
+    functionName: 'getBalance',
+    chainId: chainId, 
+    args: [chainId, address]
+  })
 
 
   const {
@@ -34,7 +47,7 @@ export default function CreateWrapper() {
   useEffect(() => {
     const setupTransferAndTimeout = async () => {
       if (isConfirmed) {
-        await new Promise(resolve => setTimeout(resolve, 4000));
+        await new Promise(resolve => setTimeout(resolve, 2000));
         await callSetUpWrap(amount, chainId.toString(), address as string);
         setCurrentStep(4)
         await new Promise(resolve => setTimeout(resolve, 2000));
@@ -76,8 +89,12 @@ export default function CreateWrapper() {
   }
 
 
+
+
   return (
+   
     <main className="flex flex-col items-center justify-between p-12" style={{ height: '80vh' }}>
+        
           {currentStep > 0 && (
             <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 z-40">
               <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-90 py-32 px-80 rounded-lg shadow-md">
