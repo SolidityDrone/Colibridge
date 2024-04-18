@@ -56,6 +56,9 @@ struct Args {
     #[arg(short, long, env = "FROM_CHAINID")]
     from_chainid: u64,
 
+    #[arg(short, long, env = "TO_CHAINID")]
+    to_chainid: u64,  
+
     #[arg(short, long, env = "BONSAI_API_KEY")]
     bonsai_key: String,
 }
@@ -94,6 +97,7 @@ fn main() -> Result<()> {
     let contract_address: Address = Address::from_str(&args.contract_address)?;
     let account_address: Address = Address::from_str(&args.account_address)?;
     let from_chainid: u64 = args.from_chainid;
+    let to_chainid: u64 = args.to_chainid;
     let data_layer_call:  COLIBRILEDGER::getBalanceAndNonceCall =
     COLIBRILEDGER::getBalanceAndNonceCall {chainid: Uint::from(from_chainid), account: account_address.clone() };
     let amount: u64 = args.amount;
@@ -111,6 +115,8 @@ fn main() -> Result<()> {
         .write(&amount)
         .unwrap()
         .write(&from_chainid)
+        .unwrap()
+        .write(&to_chainid)
         .unwrap()
         .write(&bonsai_key)
         .unwrap()

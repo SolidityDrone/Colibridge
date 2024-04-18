@@ -38,6 +38,7 @@ sol! {
 alloy_sol_types::sol! {
     struct Output {
         uint amount;
+        uint to_chainid;
         uint nonce;
         address account;
     }
@@ -52,7 +53,7 @@ fn main() {
     let account_address: Address = env::read();
     let amount: u64 = env::read();
     let from_chainid: u64 = env::read();
-
+    let to_chainid: u64 = env::read();
         let data_layer_call:  COLIBRILEDGER::getBalanceAndNonceCall =
         COLIBRILEDGER::getBalanceAndNonceCall {chainid: Uint::from(from_chainid.clone()), account: account_address.clone() };
 
@@ -92,6 +93,7 @@ fn main() {
     
     let output = Output {
         amount: Uint::from(amount.clone()),
+        to_chainid: Uint::from(to_chainid.clone()),
         nonce: Uint::from(data_layer_returns_nonce_u64.clone()),
         account: account_address.clone(),
     };

@@ -53,15 +53,26 @@ export default function CreateWrapper() {
 
   return (
     <main className="flex flex-col items-center justify-between p-12" style={{ height: '80vh' }}>
-      <div className="z-10 w-full h-3 max-w-5xl items-center justify-between font-mono text-sm lg:flex">
-      </div>
+        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex flex-col items-center">
+          <p className="fixed left-0 top-0 w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
+            <label htmlFor="number-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Choose the amount you want to wrap</label>
+          </p>
+        </div>
 
-      <div className="max-w-sm mx-auto mt-4">
-        <label htmlFor="number-input" className="block mb-1 text-sm font-medium text-gray-900 dark:text-white">Chose ETH amount you want to wrap</label>
+      <div className="max-w-sm w-full mx-auto mt-4">
+   
+        <div className="grid grid-cols-8 gap-1 mb-4 w-full">
+        <div className="col-span-1"></div>
+        <div className="col-span-4">
         <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required onChange={(el) => setAmount(el.target.value)} />
+        </div>
+       
+        <div className="col-span-2">
         <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700"
-           onClick={() => wrapETH()}>Wrap some ETH
+           onClick={() => wrapETH()}> Wrap
         </button>
+        </div>
+            </div>
       </div>
 
 

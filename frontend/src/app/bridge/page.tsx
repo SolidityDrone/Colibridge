@@ -33,7 +33,6 @@ export default function Bridge() {
       await new Promise(resolve => setTimeout(resolve, 10000));
       setCurrentStep(3);
 
-
       const arg1 = hexlify("0x0a9df29a81c1d46c996a2ebe801a094c8fbf8ff7d7476a5e144ac55a262210290f6986d06aabf95c0018d3ab48a90ba34bad8778e87cc572fbf3b36fa137f1511e90f97bc01ffa741c10d0335e6df206b311d4fd6579468e27346212ddf1fe9e244e363057358cbbf0661ba42ea3459a69328e6520c93f5a158d52ac183e2b7028bd1dc04d0e470fdb450813e97fcc12f6534346cd854478ec0ba4640545f4312d935c66756c7ec519a087b68340de4c1c24de2e4b7b6441bee29592fcb689162e9a6c1d5c60c414b7046ba1b555bfe459de7d86b1fe367903b9314880432eb4223745de2a3758ecfc13c15561d6ca56728ea312694cfcc03fcd569ba9726e53");
       const arg2 = hexlify("0x34ffbe0c65d140cf251b3c0892cd7a3d575ac4c0fbe1de6f058fd99d6f9ad9e0");
       const arg3 = hexlify("0x1032f5f2b9256a9c1f2034406da68ec6c6e9cb6206e118b2a6153a05e02e66d2");
@@ -65,26 +64,26 @@ export default function Bridge() {
       hash,
     })
 
-    
-    useEffect(() => { 
-      const setupTransferAndTimeout = async () => {
-        if (isConfirmed) {
-          setCurrentStep(4);
-          await callSetupTransfer("1", "1", address!.toString(), "1");
-          await new Promise(resolve => setTimeout(resolve, 3000));
-          setCurrentStep(5);
-          
-          const timeout = setTimeout(() => {
-            setCurrentStep(0);
-          }, 5000);
-          
-          return () => clearTimeout(timeout);
-        }
-      };
-    
-      setupTransferAndTimeout();
-      
-    }, [isConfirmed, setCurrentStep, address, callSetupTransfer]);
+
+  useEffect(() => {
+    const setupTransferAndTimeout = async () => {
+      if (isConfirmed) {
+        setCurrentStep(4);
+        await callSetupTransfer("1", "1", address!.toString(), "1");
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        setCurrentStep(5);
+
+        const timeout = setTimeout(() => {
+          setCurrentStep(0);
+        }, 5000);
+
+        return () => clearTimeout(timeout);
+      }
+    };
+
+    setupTransferAndTimeout();
+
+  }, [isConfirmed, setCurrentStep, address, callSetupTransfer]);
 
 
   return (
@@ -118,14 +117,14 @@ export default function Bridge() {
                     )}
                     {currentStep === 3 && isConfirming && (
                       <p className="text-gray-500 dark:text-gray-400 mb-6">Confirming transaction  <DotsAnimation /></p>
-                    )}       
+                    )}
                     {isConfirmed && (
                       <p className="text-gray-500 dark:text-gray-400 mb-6">Writing claim on data layer  <DotsAnimation /></p>
                     )}
 
                     <div className="flex justify-between mb-1 text-gray-500 dark:text-gray-400">
-                    <span className="text-base font-normal"></span>
-                    <span className="text-sm font-semibold text-gray-900 dark:text-white">{currentStep - 1} of 4 steps</span>
+                      <span className="text-base font-normal"></span>
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">{currentStep - 1} of 4 steps</span>
 
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-600">
@@ -140,25 +139,25 @@ export default function Bridge() {
           </div>
         )}
 
-<div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex flex-col items-center">
-  <p className="fixed left-0 top-0 w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-    <label htmlFor="number-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bridge oETH to another network with just one transaction, select amount and network</label>
-  </p>
+        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex flex-col items-center">
+          <p className="fixed left-0 top-0 w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
+            <label htmlFor="number-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bridge oETH to another network with just one transaction, select amount and network</label>
+          </p>
         </div>
-       
+
         <div className=" w-full">
           <div className="grid grid-cols-12 gap-4 mb-4 w-full">
 
-          <div className="col-span-4"></div>
-          <div className="col-span-1">
-          <button className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5  me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => open({ view: 'Networks' })}>Switch Network</button>
-          </div>
-          <div className="col-span-2">
-          <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required />
-          </div>
-          <div className="col-span-2">
-          <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => BridgeETH()}>Submit</button>
-     </div></div>
+            <div className="col-span-4"></div>
+            <div className="col-span-1">
+              <button className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5  me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => open({ view: 'Networks' })}>Switch Network</button>
+            </div>
+            <div className="col-span-2">
+              <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required />
+            </div>
+            <div className="col-span-2">
+              <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => BridgeETH()}>Submit</button>
+            </div></div>
         </div>
 
         <div className="mb-32 flex text-center justify-around  lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-2 lg:text-left">
