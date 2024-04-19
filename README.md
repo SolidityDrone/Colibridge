@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# Colibridge - Bridge with a single transaction
+
 =======
 # Colibri
 
