@@ -1,5 +1,4 @@
 
-=======
 # Colibri
 
 Colibri is a tool to create verifiable omni-chain balances. It's a project created for [Scaling Ethereum 2024 Hackathon](https://ethglobal.com/events/scaling2024).
