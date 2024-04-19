@@ -100,8 +100,13 @@ export const abi : Abi | readonly unknown[]= [
 				"type": "address"
 			}
 		],
-		"name": "getBalance",
+		"name": "getBalanceAndNonce",
 		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
+			},
 			{
 				"internalType": "uint256",
 				"name": "",

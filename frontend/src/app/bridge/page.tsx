@@ -1,7 +1,9 @@
 'use client'
 import Link from "next/link";
-import { useWriteContract, useAccount, useWaitForTransactionReceipt, BaseError } from 'wagmi'
+import { useWriteContract, useAccount, useChainId, useWaitForTransactionReceipt, BaseError, useReadContract } from 'wagmi'
 import { abi } from "../../../contracts/ERC20Wrapper/erc20wrapperAbi"
+import { abi as ledgerAbi } from "../../../contracts/colibriLedger/colibriLedgerAbi"
+import { ColibriLedger, CONTRACT_ADDRESS as LEDGER_ADDRESS, selectors as ledgerSelector } from "../../../contracts/colibriLedger/ColibriLedger"
 import { CONTRACT_ADDRESS, selectors } from "../../../contracts/ERC20Wrapper/colibriERC20Wrapper"
 import { hexlify, parseEther } from "ethers";
 import { useState, useEffect } from "react";
@@ -10,10 +12,79 @@ import { callSetupTransfer } from "../api/routes";
 import DotsAnimation from "../components/common/DotsAnimation";
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 
+const rpc_url = "https://eth-sepolia.g.alchemy.com/v2/sqbMARlPtLuVLPdS2JS2Gp7LV44mJYEZ"
+const from_chainid = "1"
+const to_chainid = "1"
+const contract_address = "8508DE326D01219f6FC2e45378601f08ec743750"
+const account_address= "CAc3f7c8C771476251e93B44CB7afA0C2eDd5EB0"
+const amount = "100"
+const bonsai_key = "oY9BA55NkX4DpLUhm8x7a7TfzHoVNCaolYSSnCd0"
+
+
+
+interface ParsedResponse {
+  image_id: string;
+  journal: string;
+  post_state_digest: string;
+  seal_hex: string;
+}
+
+function parseResponse(response: any): ParsedResponse {
+  return {
+      image_id: response.image_id,
+      journal: response.journal,
+      post_state_digest: response.post_state_digest,
+      seal_hex: response.seal_hex
+  };
+}
+
+async function callPublisherAPI(
+  rpc_url: string,
+  from_chainid: string,
+  to_chainid: string,
+  contract_address: string,
+  account_address: string,
+  amount: string,
+  bonsai_key: string
+): Promise<ParsedResponse> {
+  try {
+    const url = 'https://193.123.68.104:5004/publish';
+    const data = {
+          rpc_url,
+          from_chainid,
+          to_chainid,
+          contract_address,
+          account_address,
+          amount,
+          bonsai_key
+      };
+      console.log(url)
+      console.log(JSON.stringify(data))
+      const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+      });
+      if (!response.ok) {
+         // throw new Error(HTTP error! Status: ${response.status});
+      }
+
+      const responseData = await response.json();
+      return parseResponse(responseData);
+  } catch (error) {
+      console.error('Error:', error);
+      throw error;
+  }
+}
+
+
 export default function Bridge() {
   const [currentStep, setCurrentStep] = useState(0);
   const [dots, setDots] = useState("");
   const address = useAccount().address;
+  const [balance, setBalance] = useState("")
   const { open } = useWeb3Modal()
   const {
     data: hash,
@@ -21,22 +92,30 @@ export default function Bridge() {
     error,
     writeContract
   } = useWriteContract()
-  
+  const chainId = useChainId()
   const BridgeETH = async () => {
     try {
       setCurrentStep(1);
       //await callSetupTransfer("1", "1", address!.toString(), "1");
-      await new Promise(resolve => setTimeout(resolve, 13000));
+      //await new Promise(resolve => setTimeout(resolve, 13000));
       setCurrentStep(2);
 
       // Read api here
-      await new Promise(resolve => setTimeout(resolve, 10000));
+    //  await new Promise(resolve => setTimeout(resolve, 10000));
       setCurrentStep(3);
 
       const arg1 = hexlify("0x0a9df29a81c1d46c996a2ebe801a094c8fbf8ff7d7476a5e144ac55a262210290f6986d06aabf95c0018d3ab48a90ba34bad8778e87cc572fbf3b36fa137f1511e90f97bc01ffa741c10d0335e6df206b311d4fd6579468e27346212ddf1fe9e244e363057358cbbf0661ba42ea3459a69328e6520c93f5a158d52ac183e2b7028bd1dc04d0e470fdb450813e97fcc12f6534346cd854478ec0ba4640545f4312d935c66756c7ec519a087b68340de4c1c24de2e4b7b6441bee29592fcb689162e9a6c1d5c60c414b7046ba1b555bfe459de7d86b1fe367903b9314880432eb4223745de2a3758ecfc13c15561d6ca56728ea312694cfcc03fcd569ba9726e53");
       const arg2 = hexlify("0x34ffbe0c65d140cf251b3c0892cd7a3d575ac4c0fbe1de6f058fd99d6f9ad9e0");
       const arg3 = hexlify("0x1032f5f2b9256a9c1f2034406da68ec6c6e9cb6206e118b2a6153a05e02e66d2");
       const arg4 = hexlify("0x00000000000000000000000000000000000000000000000000000000000027100000000000000000000000000000000000000000000000000000000000000001000000000000000000000000f08a50178dfcde18524640ea6618a1f965821715");
+
+      callPublisherAPI(rpc_url,from_chainid,to_chainid,contract_address,account_address,amount,bonsai_key)
+      .then((parsedResponse) => {
+        console.log(parsedResponse);
+      }).catch((error) => {
+          console.error('Error:', error);
+      });
+
 
       writeContract({
         abi: abi,
@@ -86,10 +165,30 @@ export default function Bridge() {
   }, [isConfirmed, setCurrentStep, address, callSetupTransfer]);
 
 
+
+  const { data: result } = useReadContract({
+    abi: ledgerAbi,
+    address: `${LEDGER_ADDRESS}` as `0x${string}`,
+    functionName: 'getBalanceAndNonce',
+    chainId: 11155111,
+    args: [chainId, address]
+  });
+
+  useEffect(() => {
+    if (result) {
+      let bal = result[0];
+      let balanceWeth = ethers.formatEther(bal)
+      setBalance(balanceWeth);
+    }
+  }, [result]);
+
+  useEffect(() => {
+    console.log("Updated balance:", balance);
+  }, [balance]);
   return (
     <>
 
-      <main className="relative flex flex-col items-center justify-between p-12 " style={{ height: '80vh' }}>
+<main className="flex bg-gradient-to-b from-gray-400 to-blue-300 flex-col items-center justify-between p-12" style={{ height: '90vh' }}>
         {currentStep > 0 && (
           <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-80 z-40">
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white bg-opacity-90 py-32 px-80 rounded-lg shadow-md">
@@ -138,60 +237,48 @@ export default function Bridge() {
             </div>
           </div>
         )}
+ 
+   <div className="col-span-1"></div>
+          <div className=" bg-gradient-to-r from-purple-200 to-blue-300 shadow dark:bg-gray-1000 backdrop-blur-xl dark:border-neutral-800 dark:bg-zinc-600/30 dark:from-inherit   lg:rounded-xl lg:border lg:bg-gray-100 lg:p-4 lg:dark:bg-zinc-00/30">
+    <h1>Chain id: {chainId.toString()}</h1>
+    <h1>Ledger Balance: {balance.toString()} Ether</h1>
 
-        <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm lg:flex flex-col items-center">
-          <p className="fixed left-0 top-0 w-full justify-center border-b border-gray-300 bg-gradient-to-b from-zinc-200 pb-6 pt-8 backdrop-blur-2xl dark:border-neutral-800 dark:bg-zinc-800/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-200 lg:p-4 lg:dark:bg-zinc-800/30">
-            <label htmlFor="number-input" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Bridge oETH to another network with just one transaction, select amount and network</label>
-          </p>
+    </div>
+          <div className="grid grid-cols-8 gap-1 mb-4 w-full shadow dark:bg-gray-1000 backdrop-blur-xl dark:border-neutral-800 dark:bg-zinc-600/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-100 lg:p-4 lg:dark:bg-zinc-00/30">
+        
+          
+        <div className="col-span-4 bg-gradient-to-r from-purple-200 to-blue-300 shadow dark:bg-gray-1000 backdrop-blur-xl dark:border-neutral-800 dark:bg-zinc-600/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-100 lg:p-4 lg:dark:bg-zinc-00/30">
+        <div className="col-span-2">
+              <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="amount to activate" required />
+            </div>
+      
+          
         </div>
+        
+        <div className="col-span-4 bg-gradient-to-l from-emerald-100 to-blue-300 shadow dark:bg-gray-1000 backdrop-blur-xl dark:border-neutral-800 dark:bg-zinc-600/30 dark:from-inherit lg:static lg:w-auto  lg:rounded-xl lg:border lg:bg-gray-100 lg:p-4 lg:dark:bg-zinc-00/30">
+        
+         <div className="col-span-1">
+              <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => BridgeETH()}>Submit</button>
+             
+              <button className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => open({ view: 'Networks' })}>Switch Network</button>
+     
+          </div>
+     
+          
 
+        </div>
+      </div>
         <div className=" w-full">
           <div className="grid grid-cols-12 gap-4 mb-4 w-full">
 
             <div className="col-span-4"></div>
-            <div className="col-span-1">
-              <button className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5  me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => open({ view: 'Networks' })}>Switch Network</button>
-            </div>
-            <div className="col-span-2">
-              <input type="number" id="number-input" aria-describedby="helper-text-explanation" className="bg-gray-50 border border-gray-300 text-black-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="90210" required />
-            </div>
-            <div className="col-span-2">
-              <button type="button" className="text-white bg-gray-800 hover:bg-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700" onClick={() => BridgeETH()}>Submit</button>
-            </div></div>
+          
+        
+         </div>
         </div>
 
         <div className="mb-32 flex text-center justify-around  lg:mb-0 lg:w-full lg:max-w-5xl lg:grid-cols-2 lg:text-left">
-          <Link
-            key={"Create Wrapper"}
-            href={"/create-wrapper"}
-            className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          >
-            <h2 className="mb-3 text-2xl font-semibold">
-              Create Wrapper{" "}
-              <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-                -&gt;
-              </span>
-            </h2>
-            <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              Create a special ERC20 token to bridge.
-            </p>
-          </Link>
-
-          <Link
-            key={"Back"}
-            href={"/"}
-            className="group rounded-lg border border-transparent px-5 py-4 transition-colors hover:border-gray-300 hover:bg-gray-100 hover:dark:border-neutral-700 hover:dark:bg-neutral-800/30"
-          >
-            <h2 className="mb-3 text-2xl font-semibold">
-              Back{" "}
-              <span className="inline-block transition-transform group-hover:translate-x-1 motion-reduce:transform-none">
-              </span>
-              -&gt;
-            </h2>
-            <p className="m-0 max-w-[30ch] text-sm opacity-50">
-              Go back to the home page
-            </p>
-          </Link>
+      
         </div>
       </main>
     </>
