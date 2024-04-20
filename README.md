@@ -30,7 +30,6 @@ Here is the flow of the app:
 
 <img width="713" alt="Schermata 2024-04-19 alle 10 26 30" src="https://github.com/SolidityDrone/Colibridge/assets/46995085/4a39e4a2-0d33-4821-8eef-6543dd995d60">
 
->>>>>>> dev
 
 ## How to use it
 
