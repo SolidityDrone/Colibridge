@@ -16,9 +16,9 @@ BONSAI_API_URL=http://api.bonsai.xyz BONSAI_API_KEY=<API_KEY> RPC_URL="Rpc url" 
 
 ```
 This will build and run a file located in target/release folder, in which you can 
-
+```
 ./publisher --rpc-url <Sepolia_RPC_URL> --from-chainid 1 --contract-address 02A5e7BFd1a3407150b2310dBc1f8C925B308A6b BONSAI_API_URL=http://api.bonsai.xyz --account-address CAc3f7c8C771476251e93B44CB7afA0C2eDd5EB0  --amount 1 --bonsai-key oY9BA55NkX4DpLUhm8x7a7TfzHoVNCaolYSSnCd0 --to-chainid 11155111
-
+```
 Await for return by bonsai 
 
 [RISC Zero] is a zero-knowledge verifiable general computing platform, with [Ethereum] integration.
