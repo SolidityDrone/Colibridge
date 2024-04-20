@@ -5,11 +5,7 @@ import {
 import { useWeb3Modal } from '@web3modal/wagmi/react'
 import Image from "next/image";
 import { useAccount } from 'wagmi';
-<<<<<<< HEAD
-
-=======
 import Link from "next/link";
->>>>>>> dev
 
 
 
@@ -19,11 +15,7 @@ export default function Example() {
   const { status, address } = useAccount()
   return (
     <header className="bg-dark text-withe-900">
-<<<<<<< HEAD
-      <nav className="mx-auto flex max-w-7xl items-center justify-between p-6 lg:px-8 text-white-900" aria-label="Global">
-=======
       <nav className="mx-auto flex max-w-7xl items-center justify-between lg:px-8 text-white-900" aria-label="Global">
->>>>>>> dev
         <div className="flex lg:flex-1 text-white-900">
           <a href="/" >
              <Image
@@ -36,8 +28,6 @@ export default function Example() {
             />
           </a>
         </div>
-<<<<<<< HEAD
-=======
 
         <div>
         <Link
@@ -59,7 +49,6 @@ export default function Example() {
            
         </Link>
         </div>
->>>>>>> dev
         <div className="hidden lg:flex lg:flex-1 lg:justify-end">
           {
             address ?

@@ -43,8 +43,6 @@ start the front end
 ```bash
 cd next && yarn && yarn dev
 ```
-<<<<<<< HEAD
-=======
 
 ## How is it made?
 We have several components:
@@ -60,4 +58,3 @@ Using Risc0 to create proofs necessary to verify the balances of the users
 Using a IPC Subnet to deploy our ColibriLedger.sol; It is very convenient as it fully customizable and it's used only to store users balances.
 
 
->>>>>>> dev
