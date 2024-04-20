@@ -31,16 +31,7 @@ You can also find the documentation for RISC Zero, including guides for [writing
 
 ## Contracts
 
-RISC Zero's Ethereum contracts, including the on-chain verifier, can be found in the [contracts] directory.
-
-## Relay
-
-The Relay is a service that can be run to accept proving requests from on-chain events or via REST Request, and post receipts to the developer's application contract as a callback.
-It represents one way of accepting requests, and posting proofs to Ethereum.
-It is also possible to write your application without using the Relay.
-
-You can find and overview of how the Relay works, [in our documentation][relay-overview].
-Source code for the Relay is in the [relay] directory.
+RISC Zero's Ethereum contracts, including the on-chain verifier, can be found in the [contracts] directory. 
 
 ## View Call
 A library to query Ethereum state, or any other EVM-based blockchain state. It leverages the [alloy] library to make its use Solidity-friendly.
