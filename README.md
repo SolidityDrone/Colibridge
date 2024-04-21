@@ -19,11 +19,9 @@ Colibri has a system where a bunch of colibri-wrapper contracts are deployed on 
 We also leverage IPC custom subnet to use as a unified ledger, storing omnichain balances. 
 
 Every time an asset gets wrapped the user will need a risc0+bonsai operation to return a snark required for the transaction to go trough. 
-
-The risc0 proofs are needed for reading data across chains and have a sort of proof that a given view call has been performed, these are ultimately converted from stark2snark and returned to our application so he can either write on balance or prompt a transaction for the user.
+The risc0 proofs are needed for prooving that  data across chains has correctly been viewed, these proofs are ultimately converted from stark2snark and returned to our application so he can either write on balance or prompt a transaction for the user with the SNARK args.
 
 The goal of the project is to create a provable omnichain balance and seek alternatives in bridging operations, ultimately trying to achieve such in just a tx on the destination chain, without having to interpel the fromChain
-
 
 ## Flow
 Here is the flow of the app:
@@ -50,10 +48,15 @@ We have several components:
 ColibriLedger.sol: deployed on IPC subnet. used as unified ledger for Colibri.
 ColibriWrapper.sol: Deployed on all the other networks. Allows to wrap the tokens user want to take in account for the omni-chain balance
 
+- [Arbitrum Sepolia Wrapper](https://sepolia.arbiscan.io/address/0xa4c5660914d499d0ccdb90c294c16bb9feffc741)
+- [Sepolia Wrapper](https://sepolia.etherscan.io/address/0xCAc3f7c8C771476251e93B44CB7afA0C2eDd5EB0)
+
 ### Risc0:
 Using Risc0 to create proofs necessary to verify the balances of the users
 
 ### IPC subnets
 Using a IPC Subnet to deploy our ColibriLedger.sol; It is very convenient as it fully customizable and it's used only to store users balances.
+Here are the result of our deployment: 
+![image](https://github.com/SolidityDrone/Colibridge/assets/104315978/231ab904-1e59-4e56-810e-f59ba0017720)
 
-
+The Ledger contract is deployed on this net at address: [0x7e8C72E41C849B6671a508AF89B1c7A7AF3cb525]()
