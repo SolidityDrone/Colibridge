@@ -48,8 +48,8 @@ We have several components:
 ColibriLedger.sol: deployed on IPC subnet. used as unified ledger for Colibri.
 ColibriWrapper.sol: Deployed on all the other networks. Allows to wrap the tokens user want to take in account for the omni-chain balance
 
-- [Arbitrum Sepolia Wrapper](https://sepolia.arbiscan.io/address/0xa4c5660914d499d0ccdb90c294c16bb9feffc741)
-- [Sepolia Wrapper](https://sepolia.etherscan.io/address/0xCAc3f7c8C771476251e93B44CB7afA0C2eDd5EB0)
+- [Arbitrum Sepolia Wrapper](https://sepolia.arbiscan.io/address/0xa4c5660914D499D0Ccdb90c294C16BB9FeffC741)
+- [Sepolia Wrapper](https://sepolia.etherscan.io/address/0xccfbceaf7d49225905b82f800b5c014f98c490d8)
 
 ### Risc0:
 Using Risc0 to create proofs necessary to verify the balances of the users
