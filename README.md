@@ -3,6 +3,8 @@
 
 Colibri is a tool to create verifiable omni-chain balances. It's a project created for [Scaling Ethereum 2024 Hackathon](https://ethglobal.com/events/scaling2024).
 
+@ Continuation of this project moved to /Pontee
+
 ## How does it works?
 Colibri works with Risc0 and IPC.
 Users need to create a wrapped token representing the balance of a user for a certain token.
